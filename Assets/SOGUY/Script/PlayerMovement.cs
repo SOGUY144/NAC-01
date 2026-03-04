@@ -11,29 +11,32 @@ public class PlayerMovement : MonoBehaviour
     [Header("Jump Settings")]
     public float jumpForce = 7f;
 
-    [Header("References")]
     private Rigidbody rb;
     private Animator animator;
 
-    // Internal
     private Vector3 moveDirection;
     private float currentSpeed;
-    private bool isSprinting;
     private bool isGrounded;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+
         rb.freezeRotation = true;
+
+        // กัน Animator จำค่าเก่า
+        if (animator != null)
+        {
+            animator.SetBool("jump", false);
+            
+        }
     }
 
     void Update()
     {
-        // --- Ground Check: simple and reliable ---
         isGrounded = IsOnGround();
 
-        // --- Get Input (New Input System) ---
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null) return;
 
@@ -47,39 +50,34 @@ public class PlayerMovement : MonoBehaviour
 
         moveDirection = new Vector3(moveX, 0f, moveZ).normalized;
 
-        // --- Sprint ---
-        isSprinting = keyboard.leftShiftKey.isPressed;
+        bool isSprinting = keyboard.leftShiftKey.isPressed;
         currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
-        // --- Jump (Space) ---
+        // ----- Jump -----
         if (keyboard.spaceKey.wasPressedThisFrame && isGrounded)
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            Debug.Log("JUMP!");
-
-            if (animator != null)
-                animator.SetBool("jump", true);
         }
 
-        // Reset jump animation when landed
-        if (isGrounded && rb.linearVelocity.y <= 0.1f)
-        {
-            if (animator != null)
-                animator.SetBool("jump", false);
-        }
-
-        // --- Rotation ---
+        // ----- Rotation -----
         if (moveDirection.magnitude >= 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime
+            );
         }
 
-        // --- Animator: MO = is moving ---
+        // ----- Animator Control -----
         if (animator != null)
         {
-            animator.SetBool("MO", moveDirection.magnitude >= 0.1f);
+            
+
+            // สำคัญ: ใช้สถานะพื้นล้วน ๆ
+            animator.SetBool("jump", !isGrounded);
         }
     }
 
@@ -90,27 +88,27 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = velocity;
     }
 
-    // Reliable ground check using multiple short raycasts
     bool IsOnGround()
     {
-        float checkDistance = 0.3f;
-        Vector3 origin = transform.position + Vector3.up * 0.15f;
+        CapsuleCollider col = GetComponent<CapsuleCollider>();
 
-        // Cast 5 rays: center + 4 edges
-        bool center = Physics.Raycast(origin, Vector3.down, checkDistance);
-        bool front  = Physics.Raycast(origin + Vector3.forward * 0.2f, Vector3.down, checkDistance);
-        bool back   = Physics.Raycast(origin - Vector3.forward * 0.2f, Vector3.down, checkDistance);
-        bool left   = Physics.Raycast(origin - Vector3.right * 0.2f, Vector3.down, checkDistance);
-        bool right  = Physics.Raycast(origin + Vector3.right * 0.2f, Vector3.down, checkDistance);
+        float rayLength = 0.1f;
+        float bottomOfCapsule = transform.position.y - (col.height / 2f) + col.radius;
 
-        return center || front || back || left || right;
+        Vector3 rayOrigin = new Vector3(
+            transform.position.x,
+            bottomOfCapsule + 0.05f,
+            transform.position.z
+        );
+
+        return Physics.Raycast(rayOrigin, Vector3.down, rayLength);
+
     }
 
     void OnDrawGizmosSelected()
     {
-        // Draw ground check rays in Scene view
         Gizmos.color = Color.green;
         Vector3 origin = transform.position + Vector3.up * 0.15f;
-        Gizmos.DrawLine(origin, origin + Vector3.down * 0.3f);
+        Gizmos.DrawLine(origin, origin + Vector3.down * 0.18f);
     }
 }
