@@ -10,18 +10,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Jump Settings")]
     public float jumpForce = 7f;
-    public float groundCheckRadius = 0.3f;
-    public LayerMask groundLayer;
-
-    [Header("Ground Check")]
-    public Transform groundCheck;       // ลาก Empty GameObject ที่อยู่ใต้เท้าตัวละครมาใส่
 
     [Header("References")]
     private Rigidbody rb;
     private Animator animator;
 
     // Internal
-    private Vector2 inputVector;
     private Vector3 moveDirection;
     private float currentSpeed;
     private bool isSprinting;
@@ -31,30 +25,13 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-
-        // Lock Rigidbody rotation so physics doesn't rotate the player
         rb.freezeRotation = true;
-
-        // If no groundCheck assigned, create one at feet position
-        if (groundCheck == null)
-        {
-            GameObject gc = new GameObject("GroundCheck");
-            gc.transform.parent = transform;
-            gc.transform.localPosition = new Vector3(0f, 0.05f, 0f);
-            groundCheck = gc.transform;
-        }
-
-        // If no ground layer set, default to everything except player
-        if (groundLayer == 0)
-        {
-            groundLayer = ~LayerMask.GetMask("Player");
-        }
     }
 
     void Update()
     {
-        // --- Ground Check ---
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+        // --- Ground Check: simple and reliable ---
+        isGrounded = IsOnGround();
 
         // --- Get Input (New Input System) ---
         Keyboard keyboard = Keyboard.current;
@@ -68,10 +45,7 @@ public class PlayerMovement : MonoBehaviour
         if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) moveX += 1f;
         if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) moveX -= 1f;
 
-        inputVector = new Vector2(moveX, moveZ);
-
-        // Build movement direction and normalize to prevent faster diagonal movement
-        moveDirection = new Vector3(inputVector.x, 0f, inputVector.y).normalized;
+        moveDirection = new Vector3(moveX, 0f, moveZ).normalized;
 
         // --- Sprint ---
         isSprinting = keyboard.leftShiftKey.isPressed;
@@ -80,42 +54,63 @@ public class PlayerMovement : MonoBehaviour
         // --- Jump (Space) ---
         if (keyboard.spaceKey.wasPressedThisFrame && isGrounded)
         {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            Debug.Log("JUMP!");
+
+            if (animator != null)
+                animator.SetBool("jump", true);
         }
 
-        // --- Rotation: face the direction of movement ---
+        // Reset jump animation when landed
+        if (isGrounded && rb.linearVelocity.y <= 0.1f)
+        {
+            if (animator != null)
+                animator.SetBool("jump", false);
+        }
+
+        // --- Rotation ---
         if (moveDirection.magnitude >= 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        // --- Update Animator ---
+        // --- Animator: MO = is moving ---
         if (animator != null)
         {
-            float speedPercent = moveDirection.magnitude * (isSprinting ? 1f : 0.5f);
-            animator.SetFloat("Speed", speedPercent, 0.1f, Time.deltaTime);
-            animator.SetBool("IsGrounded", isGrounded);
-            animator.SetFloat("VerticalSpeed", rb.linearVelocity.y);
+            animator.SetBool("MO", moveDirection.magnitude >= 0.1f);
         }
     }
 
     void FixedUpdate()
     {
-        // --- Apply Movement via Rigidbody ---
         Vector3 velocity = moveDirection * currentSpeed;
-        velocity.y = rb.linearVelocity.y; // preserve gravity / jump
-
+        velocity.y = rb.linearVelocity.y;
         rb.linearVelocity = velocity;
     }
 
-    // Draw ground check sphere in editor for debugging
+    // Reliable ground check using multiple short raycasts
+    bool IsOnGround()
+    {
+        float checkDistance = 0.3f;
+        Vector3 origin = transform.position + Vector3.up * 0.15f;
+
+        // Cast 5 rays: center + 4 edges
+        bool center = Physics.Raycast(origin, Vector3.down, checkDistance);
+        bool front  = Physics.Raycast(origin + Vector3.forward * 0.2f, Vector3.down, checkDistance);
+        bool back   = Physics.Raycast(origin - Vector3.forward * 0.2f, Vector3.down, checkDistance);
+        bool left   = Physics.Raycast(origin - Vector3.right * 0.2f, Vector3.down, checkDistance);
+        bool right  = Physics.Raycast(origin + Vector3.right * 0.2f, Vector3.down, checkDistance);
+
+        return center || front || back || left || right;
+    }
+
     void OnDrawGizmosSelected()
     {
-        if (groundCheck != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-        }
+        // Draw ground check rays in Scene view
+        Gizmos.color = Color.green;
+        Vector3 origin = transform.position + Vector3.up * 0.15f;
+        Gizmos.DrawLine(origin, origin + Vector3.down * 0.3f);
     }
 }
