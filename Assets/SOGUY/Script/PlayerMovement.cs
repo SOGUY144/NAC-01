@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundMask;
 
     private CharacterController controller;
+    private Animator animator;
     private Vector3 velocity;
     private bool isGrounded;
     private float currentSpeed;
@@ -22,9 +23,16 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
+        
         if (controller == null)
         {
             Debug.LogError("PlayerMovement ต้องการ Component CharacterController บนตัวละคร");
+        }
+        
+        if (animator == null)
+        {
+            Debug.LogError("PlayerMovement ต้องการ Component Animator บนตัวละคร");
         }
     }
 
@@ -89,6 +97,14 @@ public class PlayerMovement : MonoBehaviour
             currentSpeed = Mathf.Lerp(currentSpeed, 0f, acceleration * Time.deltaTime);
         }
 
+        // ควบคุม Animator parameter
+        if (animator != null)
+        {
+            bool isMoving = inputDir.sqrMagnitude > 0.01f;
+            animator.SetBool("IsMoving", isMoving && !isRunning);
+            animator.SetBool("IsRunning", isRunning && isMoving);
+        }
+
         controller.Move(move * Time.deltaTime);
     }
 
@@ -98,6 +114,12 @@ public class PlayerMovement : MonoBehaviour
         {
             // คำนวณความเร็วกระโดดจากความสูงที่ต้องการ
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            
+            // เล่นอนิเมชั่นกระโดด
+            if (animator != null)
+            {
+                animator.SetTrigger("Jump");
+            }
         }
     }
 
@@ -105,6 +127,12 @@ public class PlayerMovement : MonoBehaviour
     {
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+        
+        // อัปเดต Animator เมื่อลงพื้น
+        if (animator != null)
+        {
+            animator.SetBool("IsGrounded", isGrounded);
+        }
     }
 
     private void OnDrawGizmosSelected()
