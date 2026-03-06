@@ -1,0 +1,62 @@
+# Slime AI Setup Guide
+
+## การตั้งค่า Slime AI ใน Unity
+
+### 1. ตั้งค่า Slime GameObject
+
+1. สร้าง GameObject สำหรับ Slime ของคุณ
+2. เพิ่ม Component ต่างๆ:
+   - **Rigidbody** (ถ้าต้องการฟิสิกส์)
+   - **Collider** (Box Collider หรือ Sphere Collider)
+   - **SlimeAI** script
+
+### 2. ตั้งค่าใน SlimeAI Script
+
+ใน Inspector ของ Slime:
+
+**Movement Settings:**
+- Move Speed: 2 (ความเร็วในการเดิน)
+- Rotation Speed: 5 (ความเร็วในการหัน)
+- Walk Radius: 10 (รัศมีการเดินสุ่ม)
+- Wait Time: 2 (เวลารอก่อนเดินใหม่)
+
+**Player Detection:**
+- Detection Radius: 5 (ระยะตรวจจับผู้เล่น)
+- Look At Duration: 3 (เวลาที่หันมองผู้เล่น)
+
+**Food Settings:**
+- Food Detection Radius: 8 (ระยะตรวจจับอาหาร)
+- Eat Radius: 1 (ระยะที่สามารถกินอาหารได้)
+- Food Layer: เลือก Layer ที่ใช้สำหรับอาหาร
+
+### 3. ตั้งค่า Food GameObject
+
+1. สร้าง GameObject สำหรับอาหาร
+2. เพิ่ม Component:
+   - **Collider** (Box Collider หรือ Sphere Collider)
+   - **Food** script
+3. ตั้งค่า Tag เป็น "Food"
+4. ตั้งค่า Layer เป็น "Food" (หรือ Layer ที่คุณเลือกใน SlimeAI)
+
+### 4. ตั้งค่า Player
+
+1. ตั้งค่า Tag ของ Player GameObject เป็น "Player"
+
+### 5. สร้าง Layers
+
+1. ไปที่ Edit → Project Settings → Tags and Layers
+2. เพิ่ม Layer ใหม่:
+   - Name: "Food"
+
+### 6. การใช้งาน
+
+- Slime จะเดินสุ่มในบริเวณที่กำหนด
+- เมื่อผู้เล่นเข้าใกล้ จะหันมามอง
+- เมื่อเห็นอาหาร จะเดินไปกิน
+- อาหารจะหายไปและ respawn ใหม่หลังจากเวลาที่กำหนด
+
+### 7. เคล็ดลับเพิ่มเติม
+
+- สามารถปรับความเร็วต่างๆ ได้ตามต้องการ
+- ใช้ Gizmos ใน Scene view เพื่อดูระยะตรวจจับต่างๆ
+- สามารถเพิ่ม Animation หรือ Particle effect ตอนกินอาหารได้
