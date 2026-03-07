@@ -88,6 +88,9 @@ public class SlimeAI : MonoBehaviour
 
     IEnumerator WanderState()
     {
+        if (!agent.isOnNavMesh)
+            yield break;
+
         Vector3 randomPoint = Random.insideUnitSphere * walkRadius;
         randomPoint += transform.position;
 

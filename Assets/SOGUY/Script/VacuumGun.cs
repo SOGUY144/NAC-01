@@ -29,6 +29,8 @@ public class VacuumGun : MonoBehaviour
 
         RaycastHit hit;
 
+        Debug.DrawRay(ray.origin, ray.direction * captureDistance, Color.red);
+
         if (Physics.Raycast(ray, out hit, captureDistance, slimeLayer))
         {
             SlimeCapture slime = hit.collider.GetComponent<SlimeCapture>();
@@ -39,9 +41,8 @@ public class VacuumGun : MonoBehaviour
 
                 if (rb != null)
                 {
-                    Vector3 dir = (transform.position - slime.transform.position).normalized;
-
-                    rb.linearVelocity = dir * pullForce;
+                    Vector3 dir = (Camera.main.transform.position - slime.transform.position).normalized;
+                    rb.velocity = dir * pullForce;
                 }
 
                 float dist = Vector3.Distance(transform.position, slime.transform.position);
