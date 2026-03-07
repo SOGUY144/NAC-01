@@ -25,8 +25,9 @@ public class VacuumGun : MonoBehaviour
 
     void TryCapture()
     {
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        if (Camera.main == null) return;
 
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
 
         Debug.DrawRay(ray.origin, ray.direction * captureDistance, Color.red);
@@ -42,7 +43,9 @@ public class VacuumGun : MonoBehaviour
                 if (rb != null)
                 {
                     Vector3 dir = (Camera.main.transform.position - slime.transform.position).normalized;
-                    rb.velocity = dir * pullForce;
+
+                    // ใช้แรงดูดแทน velocity
+                    rb.AddForce(dir * pullForce, ForceMode.Acceleration);
                 }
 
                 float dist = Vector3.Distance(transform.position, slime.transform.position);
