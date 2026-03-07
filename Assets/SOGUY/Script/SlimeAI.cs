@@ -1,204 +1,202 @@
 using UnityEngine;
+using UnityEngine.AI;
 using System.Collections;
 
 public class SlimeAI : MonoBehaviour
 {
-    [Header("Movement Settings")]
+    public enum SlimeState
+    {
+        Idle,
+        Wander,
+        ChaseFood,
+        Eat,
+        LookPlayer
+    }
+
+    [Header("Movement")]
     public float moveSpeed = 2f;
-    public float rotationSpeed = 5f;
     public float walkRadius = 10f;
     public float waitTime = 2f;
 
     [Header("Player Detection")]
     public float detectionRadius = 5f;
-    public float lookAtDuration = 3f;
+    public float lookTime = 2f;
 
-    [Header("Food Settings")]
-    public float foodDetectionRadius = 8f;
-    public float eatRadius = 1f;
+    [Header("Food")]
+    public float foodDetectRadius = 8f;
+    public float eatDistance = 1f;
     public LayerMask foodLayer;
 
-    private Vector3 randomDirection;
-    private bool isWalking = false;
-    private bool isLookingAtPlayer = false;
-    private bool isGoingToFood = false;
+    private NavMeshAgent agent;
     private Transform player;
     private Transform targetFood;
-    private float waitTimer;
-    private float lookAtTimer;
+
+    private SlimeState currentState;
 
     void Start()
     {
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = moveSpeed;
+        agent.stoppingDistance = 0.5f;
+
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        waitTimer = waitTime;
-        StartCoroutine(RandomMovement());
+
+        ChangeState(SlimeState.Idle);
     }
 
     void Update()
     {
-        CheckForPlayer();
-        CheckForFood();
+        CheckPlayer();
+        CheckFood();
+    }
 
-        if (!isLookingAtPlayer && !isGoingToFood && !isWalking)
+    void ChangeState(SlimeState newState)
+    {
+        currentState = newState;
+
+        StopAllCoroutines();
+
+        switch (newState)
         {
-            waitTimer -= Time.deltaTime;
-            if (waitTimer <= 0)
-            {
-                StartCoroutine(RandomMovement());
-                waitTimer = waitTime;
-            }
+            case SlimeState.Idle:
+                StartCoroutine(IdleState());
+                break;
+
+            case SlimeState.Wander:
+                StartCoroutine(WanderState());
+                break;
+
+            case SlimeState.ChaseFood:
+                StartCoroutine(ChaseFoodState());
+                break;
+
+            case SlimeState.Eat:
+                StartCoroutine(EatState());
+                break;
+
+            case SlimeState.LookPlayer:
+                StartCoroutine(LookPlayerState());
+                break;
         }
     }
 
-    IEnumerator RandomMovement()
+    IEnumerator IdleState()
     {
-        isWalking = true;
+        yield return new WaitForSeconds(waitTime);
+        ChangeState(SlimeState.Wander);
+    }
 
-        // สุ่มตำแหน่งใหม่
-        Vector3 randomPos = Random.insideUnitSphere * walkRadius;
-        randomPos += transform.position;
-        randomPos.y = transform.position.y;
+    IEnumerator WanderState()
+    {
+        Vector3 randomPoint = Random.insideUnitSphere * walkRadius;
+        randomPoint += transform.position;
 
-        Vector3 direction = (randomPos - transform.position).normalized;
+        NavMeshHit hit;
 
-        // เดินไปยังตำแหน่งที่สุ่ม
-        float walkTime = Random.Range(3f, 6f);
-        float timer = 0;
-
-        while (timer < walkTime && !isLookingAtPlayer && !isGoingToFood)
+        if (NavMesh.SamplePosition(randomPoint, out hit, walkRadius, NavMesh.AllAreas))
         {
-            // หันไปทางที่จะเดิน
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            agent.SetDestination(hit.position);
+        }
 
-            // เดินไปข้างหน้า
-            transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
-
-            timer += Time.deltaTime;
+        while (agent.pathPending || agent.remainingDistance > 0.5f)
+        {
             yield return null;
         }
 
-        isWalking = false;
+        ChangeState(SlimeState.Idle);
     }
 
-    void CheckForPlayer()
+    IEnumerator ChaseFoodState()
+    {
+        while (targetFood != null)
+        {
+            agent.SetDestination(targetFood.position);
+
+            float distance = Vector3.Distance(transform.position, targetFood.position);
+
+            if (distance < eatDistance)
+            {
+                ChangeState(SlimeState.Eat);
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        ChangeState(SlimeState.Idle);
+    }
+
+    IEnumerator EatState()
+    {
+        agent.ResetPath();
+
+        Food food = targetFood.GetComponent<Food>();
+
+        if (food != null)
+        {
+            yield return new WaitForSeconds(1f);
+            food.GetEaten();
+        }
+
+        targetFood = null;
+
+        ChangeState(SlimeState.Idle);
+    }
+
+    IEnumerator LookPlayerState()
+    {
+        float timer = lookTime;
+
+        while (timer > 0)
+        {
+            Vector3 dir = (player.position - transform.position).normalized;
+            dir.y = 0;
+
+            Quaternion rot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 4f);
+
+            timer -= Time.deltaTime;
+
+            yield return null;
+        }
+
+        ChangeState(SlimeState.Idle);
+    }
+
+    void CheckPlayer()
     {
         if (player == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        float distance = Vector3.Distance(transform.position, player.position);
 
-        if (distanceToPlayer <= detectionRadius && !isLookingAtPlayer)
+        if (distance < detectionRadius && currentState != SlimeState.LookPlayer)
         {
-            StartCoroutine(LookAtPlayer());
+            ChangeState(SlimeState.LookPlayer);
         }
     }
 
-    IEnumerator LookAtPlayer()
+    void CheckFood()
     {
-        isLookingAtPlayer = true;
-        lookAtTimer = lookAtDuration;
+        if (currentState == SlimeState.ChaseFood || currentState == SlimeState.Eat)
+            return;
 
-        while (lookAtTimer > 0)
+        Collider[] foods = Physics.OverlapSphere(transform.position, foodDetectRadius, foodLayer);
+
+        if (foods.Length > 0)
         {
-            // หันไปหาผู้เล่น
-            Vector3 directionToPlayer = (player.position - transform.position).normalized;
-            directionToPlayer.y = 0;
-
-            Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            lookAtTimer -= Time.deltaTime;
-            yield return null;
-        }
-
-        isLookingAtPlayer = false;
-    }
-
-    void CheckForFood()
-    {
-        if (isGoingToFood) return;
-
-        Collider[] foodColliders = Physics.OverlapSphere(transform.position, foodDetectionRadius, foodLayer);
-
-        if (foodColliders.Length > 0)
-        {
-            // หาอาหารที่ใกล้ที่สุด
-            float closestDistance = Mathf.Infinity;
-            Transform closestFood = null;
-
-            foreach (Collider food in foodColliders)
-            {
-                float distance = Vector3.Distance(transform.position, food.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestFood = food.transform;
-                }
-            }
-
-            if (closestFood != null)
-            {
-                targetFood = closestFood;
-                StartCoroutine(GoToFood());
-            }
-        }
-    }
-
-    IEnumerator GoToFood()
-    {
-        isGoingToFood = true;
-
-        while (targetFood != null && Vector3.Distance(transform.position, targetFood.position) > eatRadius)
-        {
-            // เดินไปหาอาหาร
-            Vector3 directionToFood = (targetFood.position - transform.position).normalized;
-            directionToFood.y = 0;
-
-            Quaternion targetRotation = Quaternion.LookRotation(directionToFood);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            transform.Translate(Vector3.forward * moveSpeed * 1.5f * Time.deltaTime);
-
-            yield return null;
-        }
-
-        // กินอาหาร
-        if (targetFood != null)
-        {
-            EatFood();
-        }
-
-        isGoingToFood = false;
-        targetFood = null;
-    }
-
-    void EatFood()
-    {
-        if (targetFood != null)
-        {
-            // ทำลายอาหาร
-            Destroy(targetFood.gameObject);
-
-            // เพิ่มเอฟเฟกต์หรือเสียงตอนกินได้ที่นี่
-            Debug.Log("Slime กินอาหารแล้ว!");
+            targetFood = foods[0].transform;
+            ChangeState(SlimeState.ChaseFood);
         }
     }
 
     void OnDrawGizmosSelected()
     {
-        // แสดงรัศมีตรวจจับผู้เล่น
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // แสดงรัศมีตรวจจับอาหาร
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, foodDetectionRadius);
+        Gizmos.DrawWireSphere(transform.position, foodDetectRadius);
 
-        // แสดงรัศมีกินอาหาร
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, eatRadius);
-
-        // แสดงรัศมีเดินสุ่ม
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, walkRadius);
     }
