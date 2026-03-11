@@ -13,13 +13,11 @@ public class Food : MonoBehaviour
     {
         originalPosition = transform.position;
 
-        // ตั้ง Tag เป็น Food ถ้ายังไม่ได้ตั้ง
         if (!CompareTag("Food"))
         {
             gameObject.tag = "Food";
         }
 
-        // ตั้ง Layer เป็น Food ถ้ามี
         int foodLayer = LayerMask.NameToLayer("Food");
 
         if (foodLayer != -1)
@@ -32,7 +30,7 @@ public class Food : MonoBehaviour
     {
         if (other.CompareTag("Slime"))
         {
-            // Slime จะจัดการกินใน SlimeAI
+            // การกินจะถูกจัดการใน SlimeAI
         }
     }
 
@@ -44,10 +42,8 @@ public class Food : MonoBehaviour
 
         Debug.Log("Food eaten");
 
-        // ซ่อนอาหาร
         gameObject.SetActive(false);
 
-        // Respawn
         Invoke(nameof(Respawn), respawnTime);
     }
 

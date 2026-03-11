@@ -33,6 +33,8 @@ public class SlimeAI : MonoBehaviour
 
     private SlimeState currentState;
 
+    private SlimeHunger slimeHunger;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -40,6 +42,8 @@ public class SlimeAI : MonoBehaviour
         agent.stoppingDistance = 0.5f;
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        slimeHunger = GetComponent<SlimeHunger>();
 
         ChangeState(SlimeState.Idle);
     }
@@ -138,6 +142,13 @@ public class SlimeAI : MonoBehaviour
         if (food != null)
         {
             yield return new WaitForSeconds(1f);
+
+            // เพิ่มค่า Hunger
+            if (slimeHunger != null)
+            {
+                slimeHunger.Eat(food.foodValue);
+            }
+
             food.GetEaten();
         }
 
@@ -180,6 +191,16 @@ public class SlimeAI : MonoBehaviour
 
     void CheckFood()
     {
+
+        SlimeHunger hunger = GetComponent<SlimeHunger>();
+
+        if (hunger != null)
+        {
+            // ถ้ายังอิ่มอยู่ไม่ต้องหาอาหาร
+            if (hunger.currentHunger > 0f)
+                return;
+        }
+
         if (currentState == SlimeState.ChaseFood || currentState == SlimeState.Eat)
             return;
 
