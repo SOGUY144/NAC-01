@@ -7,6 +7,7 @@ public class VacuumGun : MonoBehaviour
     public float captureRange = 2f;
 
     public LayerMask slimeLayer;
+    public LayerMask foodLayer; // เพิ่ม Layer สำหรับอาหาร
 
     PlayerInventory inventory;
 
@@ -32,27 +33,45 @@ public class VacuumGun : MonoBehaviour
 
         Debug.DrawRay(ray.origin, ray.direction * captureDistance, Color.red);
 
-        if (Physics.Raycast(ray, out hit, captureDistance, slimeLayer))
-        {
-            SlimeCapture slime = hit.collider.GetComponent<SlimeCapture>();
+        // รวม Layer ทั้งสองเพื่อยิง Ray ครั้งเดียว
+        LayerMask combinedLayer = slimeLayer | foodLayer;
 
+        if (Physics.Raycast(ray, out hit, captureDistance, combinedLayer))
+        {
+            // --- ดูดสไลม์ ---
+            SlimeCapture slime = hit.collider.GetComponent<SlimeCapture>();
             if (slime != null)
             {
                 Rigidbody rb = slime.GetComponent<Rigidbody>();
-
                 if (rb != null)
                 {
                     Vector3 dir = (Camera.main.transform.position - slime.transform.position).normalized;
-
-                    // ใช้แรงดูดแทน velocity
                     rb.AddForce(dir * pullForce, ForceMode.Acceleration);
                 }
 
                 float dist = Vector3.Distance(transform.position, slime.transform.position);
-
                 if (dist < captureRange)
                 {
                     slime.Capture(inventory);
+                }
+            }
+
+            // --- ดูดอาหาร ---
+            Food food = hit.collider.GetComponent<Food>();
+            if (food != null)
+            {
+                Rigidbody rb = food.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    Vector3 dir = (Camera.main.transform.position - food.transform.position).normalized;
+                    rb.AddForce(dir * pullForce, ForceMode.Acceleration);
+                }
+
+                float dist = Vector3.Distance(transform.position, food.transform.position);
+                if (dist < captureRange)
+                {
+                    inventory.AddBanana();
+                    food.GetEaten(); // ซ่อนอาหาร + เริ่ม respawn
                 }
             }
         }

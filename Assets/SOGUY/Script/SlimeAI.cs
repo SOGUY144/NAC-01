@@ -197,7 +197,7 @@ public class SlimeAI : MonoBehaviour
         if (hunger != null)
         {
             // ถ้ายังอิ่มอยู่ไม่ต้องหาอาหาร
-            if (hunger.currentHunger > 0f)
+            if (hunger.currentHunger > 50f)
                 return;
         }
 
