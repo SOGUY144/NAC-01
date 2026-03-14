@@ -70,8 +70,10 @@ public class VacuumGun : MonoBehaviour
                 float dist = Vector3.Distance(transform.position, food.transform.position);
                 if (dist < captureRange)
                 {
-                    inventory.AddBanana();
-                    food.GetEaten(); // ซ่อนอาหาร + เริ่ม respawn
+                    if (inventory != null && inventory.AddBanana())
+                    {
+                        food.GetEaten(); // ซ่อนอาหาร + เริ่ม respawn
+                    }
                 }
             }
         }
