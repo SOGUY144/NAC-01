@@ -34,15 +34,16 @@ public class PlayerInventory : MonoBehaviour
         Destroy(slime);
     }
 
-    public void AddBanana()
+    public bool AddBanana()
     {
         if (banana >= maxFood)
         {
             Debug.Log("Food Inventory เต็ม!");
-            return;
+            return false;
         }
         banana++;
         Debug.Log($"Got Banana! Total: {banana}");
+        return true;
     }
 
     public void AddPlort()

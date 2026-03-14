@@ -41,7 +41,15 @@ public class SlimeAI : MonoBehaviour
         agent.speed = moveSpeed;
         agent.stoppingDistance = 0.5f;
 
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject != null)
+        {
+            player = playerObject.transform;
+        }
+        else
+        {
+            Debug.LogWarning("SlimeAI: ไม่พบ GameObject ที่มี tag 'Player'");
+        }
 
         slimeHunger = GetComponent<SlimeHunger>();
 
@@ -192,12 +200,10 @@ public class SlimeAI : MonoBehaviour
     void CheckFood()
     {
 
-        SlimeHunger hunger = GetComponent<SlimeHunger>();
-
-        if (hunger != null)
+        if (slimeHunger != null)
         {
             // ถ้ายังอิ่มอยู่ไม่ต้องหาอาหาร
-            if (hunger.currentHunger > 50f)
+            if (slimeHunger.currentHunger > 50f)
                 return;
         }
 
