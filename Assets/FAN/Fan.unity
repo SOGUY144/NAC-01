@@ -55166,7 +55166,6 @@ Transform:
   - {fileID: 543450651768361504}
   - {fileID: 543450651754793580}
   - {fileID: 647338329}
-  - {fileID: 7535542930585248860}
   - {fileID: 698434913}
   - {fileID: 620115852}
   - {fileID: 1280466350}
@@ -108009,21 +108008,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6080161505033775070}
   m_Mesh: {fileID: 4737928072456765103, guid: 1345cc2d3c9c9ec4c8d23aa6f2ab99f0, type: 3}
---- !u!4 &7535542930585248860
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7756869096639337502}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -267.55374, y: -130.49739, z: 491.98108}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1376559444}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7554162461445626822
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -108376,22 +108360,6 @@ GameObject:
   - component: {fileID: 751089279818846276}
   m_Layer: 0
   m_Name: Barrel (2)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!1 &7756869096639337502
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7535542930585248860}
-  m_Layer: 0
-  m_Name: Baker_house
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
