@@ -17,5 +17,14 @@ MonoBehaviour:
   CallerAudio: {fileID: 0}
   DelayAfterAudio: 1
   IsTerminalNode: 0
-  Outcome: 0
-  Choices: []
+  Outcome: 1
+  Choices:
+  - ChoiceText: "\u0E44\u0E2D\u0E04\u0E27\u0E22\u0E2E\u0E32\u0E19"
+    NextNode: {fileID: 0}
+    EventTriggerID: 
+  - ChoiceText: "\u0E44\u0E2D\u0E04\u0E27\u0E22\u0E01\u0E34\u0E15"
+    NextNode: {fileID: 0}
+    EventTriggerID: 
+  - ChoiceText: "\u0E04\u0E27\u0E22\u0E14\u0E25\n"
+    NextNode: {fileID: 0}
+    EventTriggerID: 
