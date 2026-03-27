@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Food
   - Slime
+  - Phone
   layers:
   - Default
   - TransparentFX
