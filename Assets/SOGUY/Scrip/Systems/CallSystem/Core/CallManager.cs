@@ -32,6 +32,10 @@ namespace SOGUY.CallSystem.Core
         public event Action<DialogueNode> OnNodeReached;     // คนโทรเริ่มพูด
         public event Action<DialogueNode> OnChoicesReady;    // คนโทรพูดจบ โชว์ปุ่ม
         public event Action<CallOutcome> OnCallEnded;        // สายตัด
+        public event Action<float, float> OnTimerUpdate;     // อัพเดทเวลา (เหลือ, เต็ม)
+        public event Action OnTimerEnd;                      // เวลาหมด
+
+        private Coroutine _choiceTimerCoroutine;
 
         private void Awake()
         {
@@ -118,15 +122,65 @@ namespace SOGUY.CallSystem.Core
             {
                 EndCall(_currentNode.Outcome);
             }
+            else if (_currentNode.IsAutoProceed)
+            {
+                if (_currentNode.AutoNextNode != null)
+                {
+                    GoToNode(_currentNode.AutoNextNode);
+                }
+                else
+                {
+                    Debug.LogWarning("[CallManager] IsAutoProceed ถูกเปิดไว้ แต่ไม่ได้ใส่ AutoNextNode! สายจะถูกตัดเพื่อป้องกันบัค");
+                    EndCall(CallOutcome.Failure);
+                }
+            }
             else
             {
                 OnChoicesReady?.Invoke(_currentNode);
+                
+                // ถ้าระบุเวลาไว้ ให้เริ่มวิ่งตัวหน่วงเวลา (QTE)
+                if (_currentNode.TimerDuration > 0f)
+                {
+                    if (_currentNode.TimeoutNode != null)
+                    {
+                        _choiceTimerCoroutine = StartCoroutine(ChoiceTimerRoutine(_currentNode.TimerDuration, _currentNode.TimeoutNode));
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[CallManager] มีกการตั้งเวลา Timer แต่ไม่ได้ใส่ TimeoutNode ไว้! ถือว่าให้เวลาผู้เล่นเลือกชิลๆ");
+                    }
+                }
             }
+        }
+
+        private IEnumerator ChoiceTimerRoutine(float duration, DialogueNode timeoutNode)
+        {
+            float remaining = duration;
+            while (remaining > 0)
+            {
+                remaining -= Time.deltaTime;
+                OnTimerUpdate?.Invoke(remaining, duration);
+                yield return null; // รอเฟรมถัดไป
+            }
+
+            // เวลาหมด!
+            remaining = 0;
+            OnTimerUpdate?.Invoke(remaining, duration);
+            OnTimerEnd?.Invoke();
+            
+            GoToNode(timeoutNode); // บังคับเตะเข้าสู่ฉาก Bad Outcome
         }
 
         public void MakeChoice(int choiceIndex)
         {
             if (!_isCallActive || _currentNode == null || _currentNode.IsTerminalNode) return;
+
+            // ผู้เล่นกดเลือกทันเวลา! ยกเลิกการนับเวลาถอยหลังทันที
+            if (_choiceTimerCoroutine != null)
+            {
+                StopCoroutine(_choiceTimerCoroutine);
+                _choiceTimerCoroutine = null;
+            }
 
             if (choiceIndex >= 0 && choiceIndex < _currentNode.Choices.Count)
             {

@@ -135,6 +135,21 @@ public class PlayerController : MonoBehaviour
                     worldButton.OnInteract();
                 }
             }
+
+            // ----------------------------------------------------
+            // 3. ตรวจจับวิทยุ (ระบบ Radio)
+            // ----------------------------------------------------
+            var radio = hitObj.GetComponent<RadioInteract>();
+            if (radio != null && !hitSomething && radio.IsRadioReady)
+            {
+                hitSomething = true;
+                ShowPrompt("[E] รับวิทยุ");
+
+                if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
+                {
+                    radio.TriggerInteraction();
+                }
+            }
         }
 
         // ถ้าเลเซอร์ไม่โดนอะไรที่กดได้เลย หรือหันหน้าหนีปุ่ม

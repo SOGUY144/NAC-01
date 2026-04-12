@@ -14,6 +14,9 @@ namespace SOGUY.CallSystem.Data
     public class DialogueNode : ScriptableObject
     {
         [Header("Caller Information")]
+        [Tooltip("If filled, overrides the Call Scenario's CallerName on the UI for this specific node.")]
+        public string SpeakerName;
+
         [TextArea(3, 5)]
         [Tooltip("What the caller says over the phone.")]
         public string CallerText;
@@ -31,7 +34,22 @@ namespace SOGUY.CallSystem.Data
         [Tooltip("If the call ends here, what is the outcome?")]
         public CallOutcome Outcome = CallOutcome.Neutral;
 
+        [Header("Auto Follow-up (โหมดต่อเนื่องอัตโนมัติ)")]
+        [Tooltip("เปิดเพื่อวิ่งไปเล่นลูกศรประโยคถัดไป(AutoNextNode)โดยอัตโนมัติ โดยไม่รอผู้เล่นแทรก")]
+        public bool IsAutoProceed = false;
+
+        [Tooltip("ประโยคถัดไปที่จะเล่นอัตโนมัติถ้าเปิดโหมดด้านบน")]
+        public DialogueNode AutoNextNode;
+
+        [Header("Player Choices (ทางเลือก)")]
         [Tooltip("The choices presented to the player after the caller finishes speaking.")]
         public List<Choice> Choices = new List<Choice>();
+
+        [Header("Quick Time Event (หมดเวลาตัดสินใจ)")]
+        [Tooltip("ระยะเวลาที่ให้ผู้เล่นตัดสินใจเลือก (วินาที) หากเป็น 0 คือไม่มีเวลาจำกัด")]
+        public float TimerDuration = 0f;
+
+        [Tooltip("ประโยคที่จะบังคับเล่นอัตโนมัติ หากผู้เล่นเลือกคำตอบไม่ทันเวลา")]
+        public DialogueNode TimeoutNode;
     }
 }

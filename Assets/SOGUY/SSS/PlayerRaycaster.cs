@@ -14,6 +14,7 @@ public class PlayerRaycaster : MonoBehaviour
 
     private Camera mainCamera;
     private WorldButtonInteract currentTarget;
+    private RadioInteract currentRadio;
 
     void Start()
     {
@@ -43,6 +44,7 @@ public class PlayerRaycaster : MonoBehaviour
         {
             // Try to get the WorldButtonInteract script from the hit object
             WorldButtonInteract hitButton = hit.collider.GetComponent<WorldButtonInteract>();
+            RadioInteract hitRadio = hit.collider.GetComponent<RadioInteract>();
 
             if (hitButton != null)
             {
@@ -50,18 +52,26 @@ public class PlayerRaycaster : MonoBehaviour
                 if (currentTarget != hitButton)
                 {
                     // Reset the previous target if it exists
-                    if (currentTarget != null)
-                    {
-                        currentTarget.OnHoverExit();
-                    }
+                    ClearTarget();
 
                     currentTarget = hitButton;
                     currentTarget.OnHoverEnter(); // Hover on the new target
                 }
             }
+            else if (hitRadio != null)
+            {
+                // ถ้าหันไปโฟกัสโดนวิทยุ!
+                if (currentRadio != hitRadio)
+                {
+                    ClearTarget();
+                    
+                    currentRadio = hitRadio;
+                    currentRadio.ShowPrompt(); // โชว์ป้ายตัว E
+                }
+            }
             else
             {
-                // We hit something on the UI layer, but it's not a WorldButtonInteract
+                // We hit something on the UI layer, but it's not interactive
                 ClearTarget();
             }
         }
@@ -75,9 +85,10 @@ public class PlayerRaycaster : MonoBehaviour
     private void HandleInput()
     {
         // Check if the player pressed the interact key and we have a valid target
-        if (Input.GetKeyDown(interactKey) && currentTarget != null)
+        if (Input.GetKeyDown(interactKey))
         {
-            currentTarget.OnInteract();
+            if (currentTarget != null) currentTarget.OnInteract();
+            if (currentRadio != null) currentRadio.TriggerInteraction();
         }
     }
 
@@ -87,6 +98,12 @@ public class PlayerRaycaster : MonoBehaviour
         {
             currentTarget.OnHoverExit();
             currentTarget = null;
+        }
+
+        if (currentRadio != null)
+        {
+            currentRadio.HidePrompt();
+            currentRadio = null;
         }
     }
 }

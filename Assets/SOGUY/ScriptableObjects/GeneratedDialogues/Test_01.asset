@@ -10,21 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e8db24d25919804c8722794d82ea86b, type: 3}
-  m_Name: Node_01_HelpMe
+  m_Name: Test_01
   m_EditorClassIdentifier: 
+  SpeakerName: "\u0E2D\u0E35\u0E18\u0E32\u0E19 \u0E40\u0E21\u0E22\u0E4C\u0E2A\u0E31\u0E19"
   CallerText: "\u0E19\u0E35\u0E49911\u0E15\u0E33\u0E23\u0E27\u0E08\u0E42\u0E2D\u0E40\u0E1B\u0E2D\u0E23\u0E4C\u0E40\u0E23\u0E40\u0E15\u0E2D\u0E23\u0E4C\u0E04\u0E23\u0E31\u0E1A
-    \u0E21\u0E35\u0E2D\u0E30\u0E44\u0E23\u0E43\u0E2B\u0E49\u0E0A\u0E48\u0E27\u0E22\u0E44\u0E2B\u0E21\u0E04\u0E23\u0E31\u0E1A\n"
-  CallerAudio: {fileID: 0}
-  DelayAfterAudio: 1
+    \u0E21\u0E35\u0E2D\u0E30\u0E44\u0E23\u0E43\u0E2B\u0E49\u0E0A\u0E48\u0E27\u0E22\u0E44\u0E2B\u0E21\u0E04\u0E23\u0E31\u0E1A"
+  CallerAudio: {fileID: 8300000, guid: 733335d8ce5a05647be678ba123964f7, type: 3}
+  DelayAfterAudio: 2.5
   IsTerminalNode: 0
-  Outcome: 1
-  Choices:
-  - ChoiceText: "\u0E44\u0E2D\u0E04\u0E27\u0E22\u0E2E\u0E32\u0E19"
-    NextNode: {fileID: 0}
-    EventTriggerID: 
-  - ChoiceText: "\u0E44\u0E2D\u0E04\u0E27\u0E22\u0E01\u0E34\u0E15"
-    NextNode: {fileID: 0}
-    EventTriggerID: 
-  - ChoiceText: "\u0E04\u0E27\u0E22\u0E14\u0E25\n"
-    NextNode: {fileID: 0}
-    EventTriggerID: 
+  Outcome: 0
+  IsAutoProceed: 1
+  AutoNextNode: {fileID: 11400000, guid: e452936354a19d044b22ccaf198d742c, type: 2}
+  Choices: []
+  TimerDuration: 0
+  TimeoutNode: {fileID: 0}
