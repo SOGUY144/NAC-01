@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e8db24d25919804c8722794d82ea86b, type: 3}
-  m_Name: CS_16
+  m_Name: CS_17
   m_EditorClassIdentifier: 
   SpeakerName: 
-  CallerText: "\u0E21...\u0E21\u0E31\u0E19\u0E08\u0E30\u0E1E\u0E31\u0E07\u0E1B\u0E23\u0E30\u0E15\u0E39\u0E40\u0E02\u0E49\u0E32\u0E21\u0E32\u0E41\u0E25\u0E49-"
+  CallerText: "\u0E01\u0E23\u0E35\u0E49\u0E14\u0E14\u0E14\u0E14\u0E14\u0E14\u0E14"
   CallerAudio: {fileID: 0}
-  DelayAfterAudio: 4
+  DelayAfterAudio: 9
   IsTerminalNode: 0
   Outcome: 0
   IsAutoProceed: 1
-  AutoNextNode: {fileID: 11400000, guid: e35dd02154c057441a1fd14069e7ea98, type: 2}
+  AutoNextNode: {fileID: 11400000, guid: 19cd645497fd2684d91b47a3146d770d, type: 2}
   Choices: []
   TimerDuration: 0
   TimeoutNode: {fileID: 0}

@@ -128,15 +128,23 @@ public class RadioInteract : MonoBehaviour
         if (InteractPromptUI != null) InteractPromptUI.SetActive(false);
     }
 
-    // ---------- Glow ----------
+    // ---------- Glow & Outline ----------
     private void ShowGlow()
     {
         if (GlowEffect != null) GlowEffect.SetActive(true);
+
+        // เปิดเส้นขอบ Outline ทันทีถ้ามีติดอยู่
+        var outline = GetComponent<Outline>();
+        if (outline != null) outline.enabled = true;
     }
 
     private void HideGlow()
     {
         if (GlowEffect != null) GlowEffect.SetActive(false);
+
+        // ปิดเส้นขอบ Outline
+        var outline = GetComponent<Outline>();
+        if (outline != null) outline.enabled = false;
     }
 
     // ---------- Interaction ----------

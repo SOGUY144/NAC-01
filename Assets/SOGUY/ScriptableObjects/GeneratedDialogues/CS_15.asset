@@ -19,7 +19,7 @@ MonoBehaviour:
   IsTerminalNode: 0
   Outcome: 0
   IsAutoProceed: 1
-  AutoNextNode: {fileID: 0}
+  AutoNextNode: {fileID: 11400000, guid: 12e76c1186e5f96478eca17827202972, type: 2}
   Choices: []
   TimerDuration: 0
   TimeoutNode: {fileID: 0}
