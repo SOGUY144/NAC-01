@@ -1,4 +1,4 @@
-﻿//
+//
 //  Outline.cs
 //  QuickOutline
 //
@@ -56,6 +56,7 @@ public class Outline : MonoBehaviour {
   [SerializeField]
   private Mode outlineMode;
 
+  [ColorUsage(true, true)]
   [SerializeField]
   private Color outlineColor = Color.white;
 
