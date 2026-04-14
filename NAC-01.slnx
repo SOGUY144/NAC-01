@@ -1,7 +1,4 @@
 ﻿<Solution>
-  <Project Path="SmnStyleHardline.Demo.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="SmnStyleHardline.Runtime.csproj" />
-  <Project Path="SmnStyleHardline.Editor.csproj" />
 </Solution>
