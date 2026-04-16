@@ -3955,7 +3955,7 @@ PrefabInstance:
     - target: {fileID: 1272581854287304540, guid: 695832e1ebe986744a8bf7f436bf943c, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: a799ea0e243a38b42842b23a02406cba, type: 2}
+      objectReference: {fileID: 2100000, guid: ee35078e797e82948835022c4278f7b5, type: 2}
     - target: {fileID: 1273327601614896924, guid: 695832e1ebe986744a8bf7f436bf943c, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -15079,7 +15079,7 @@ PrefabInstance:
     - target: {fileID: 8390827700481861717, guid: 695832e1ebe986744a8bf7f436bf943c, type: 3}
       propertyPath: 'm_Materials.Array.data[3]'
       value: 
-      objectReference: {fileID: 2100000, guid: a799ea0e243a38b42842b23a02406cba, type: 2}
+      objectReference: {fileID: 2100000, guid: ee35078e797e82948835022c4278f7b5, type: 2}
     - target: {fileID: 8391454748602975725, guid: 695832e1ebe986744a8bf7f436bf943c, type: 3}
       propertyPath: m_Materials.Array.size
       value: 1
@@ -22942,7 +22942,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cd28d0163d88d9468d822895c324c01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  systemAsset: {fileID: 0}
 --- !u!4 &1688660370
 Transform:
   m_ObjectHideFlags: 0
